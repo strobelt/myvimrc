@@ -68,6 +68,7 @@ let g:ctrlp_user_command = ['', 'cd %s && git ls-files -co --exclude-standard']
 color dracula
 
 " Airline Config
+let g:airline_theme='dark'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
