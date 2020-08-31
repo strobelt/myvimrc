@@ -22,6 +22,9 @@ Plug 'scrooloose/nerdcommenter'
 " vimicons
 Plug 'ryanoasis/vim-devicons'
 
+" CSV.vim
+Plug 'chrisbra/csv.vim'
+
 call plug#end()
 
 " General Config
@@ -82,3 +85,30 @@ let g:NERDDefaultAlign = 'left'
 let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDToggleCheckAllLines = 1
+
+" Google Search
+function! GoogleText(type, ...)
+  let sel_save = &selection
+  let &selection = "inclusive"
+  let reg_save = @@
+
+  if a:0  " Invoked from Visual mode, use '< and '> marks.
+    silent exe "normal! `<" . a:type . "`>y"
+  elseif a:type == 'line'
+    silent exe "normal! '[V']y"
+  elseif a:type == 'block'
+    silent exe "normal! `[\<C-V>`]y"
+  else
+    silent exe "normal! `[v`]y"
+  endif
+
+  let search = substitute(trim(@@), ' \+', '+', 'g')
+  silent exe "!start https://google.com/search?q=" . search
+
+  let &selection = sel_save
+  let @@ = reg_save
+endfunction
+
+" CSV.vim config 
+nmap <silent> gs :set opfunc=GoogleText<CR>g@
+vmap <silent> gs :<C-u>call GoogleText(visualmode(), 1)<Cr>
