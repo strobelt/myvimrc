@@ -22,6 +22,17 @@ Plug 'scrooloose/nerdcommenter'
 " vimicons
 Plug 'ryanoasis/vim-devicons'
 
+" OmniSharp
+Plug 'OmniSharp/omnisharp-vim'
+Plug 'prabirshrestha/asyncomplete.vim'
+
+if has('python3')
+    Plug 'SirVer/ultisnips'
+    Plug 'honza/vim-snippets'
+    Plug 'prabirshrestha/asyncomplete-ultisnips.vim'
+endif
+
+
 call plug#end()
 
 " General Config
@@ -47,7 +58,8 @@ if has("gui_running")
     set guioptions-=r  "remove right-hand scroll bar
     set guioptions-=L  "remove left-hand scroll bar
 
-    set guifont=FuraMono_Nerd_Font_Mono:h11:cANSI
+"    set guifont=FuraMono_Nerd_Font_Mono:h11:cANSI
+    set guifont=Ellograph_CF_Regular:h11:cANSI
     set encoding=utf8
     if has("win32") || has("win64") || has("win16")
         set renderoptions=type:directx
@@ -82,3 +94,23 @@ let g:NERDDefaultAlign = 'left'
 let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDToggleCheckAllLines = 1
+
+" Asyncomplete tab completion
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <c-Tab> pumvisible() ? "\<C-p>" : "\<c-Tab>"
+inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
+imap <c-space> <Plug>(asyncomplete_force_refresh)
+
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+if has('python3')
+    let g:UltiSnipsJumpForwardTrigger="<c-b>"
+    let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+    let g:UltiSnipsExpandTrigger="<S-Tab>"
+    call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
+        \ 'name': 'ultisnips',
+        \ 'whitelist': ['*'],
+        \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
+        \ }))
+endif
