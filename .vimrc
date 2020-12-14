@@ -1,8 +1,5 @@
 call plug#begin('~/.vim/plugged')
 
-" NerdTree
-Plug 'scrooloose/nerdtree'
-
 " Dracula Theme
 Plug 'dracula/vim', { 'as': 'dracula' }
 
@@ -10,21 +7,13 @@ Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
-" CtrlP
-Plug 'ctrlpvim/ctrlp.vim'
-
-" vimagit
-Plug 'jreybert/vimagit'
-
-" NERD Commenter
-Plug 'scrooloose/nerdcommenter'
-
 " vimicons
 Plug 'ryanoasis/vim-devicons'
 
 " OmniSharp
 Plug 'OmniSharp/omnisharp-vim'
 Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'dense-analysis/ale'
 
 if has('python3')
     Plug 'SirVer/ultisnips'
@@ -32,12 +21,23 @@ if has('python3')
     Plug 'prabirshrestha/asyncomplete-ultisnips.vim'
 endif
 
+" vim-clap
+Plug 'liuchengxu/vim-clap', { 'do': { -> clap#installer#force_download() } }
+
+" vim-fugitive
+Plug 'tpope/vim-fugitive'
+
+" csv.vim
+Plug 'chrisbra/csv.vim'
+
+" vim-signify
+Plug 'mhinz/vim-signify'
 
 call plug#end()
 
 " General Config
 filetype plugin indent on
-let mapleader="\\"
+let mapleader=";"
 set clipboard=unnamed
 set nu rnu
 syntax on
@@ -52,55 +52,90 @@ set backspace=2
 set backup
 set backupdir=~/temp
 set dir=~/temp
+autocmd GUIEnter * simalt ~x
 if has("gui_running")
     set guioptions-=m  "remove menu bar
     set guioptions-=T  "remove toolbar
     set guioptions-=r  "remove right-hand scroll bar
     set guioptions-=L  "remove left-hand scroll bar
 
-"    set guifont=FuraMono_Nerd_Font_Mono:h11:cANSI
-    set guifont=Ellograph_CF_Regular:h11:cANSI
+    let &guifont="EllographCF_NF_Regular:h11:cANSI,FuraMono_Nerd_Font_Mono:h11:cANSI"
     set encoding=utf8
     if has("win32") || has("win64") || has("win16")
         set renderoptions=type:directx
     endif
 endif
 
-" NERDTree config
-map <silent> <C-n> :NERDTreeToggle<CR>
-
-" CtrlP config
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_working_path_mode = 'ra'
-" Ignore files in ignore
-let g:ctrlp_user_command = ['', 'cd %s && git ls-files -co --exclude-standard']
-
 " Dracula Theme
 color dracula
 
+" netrw Config
+let g:netrw_liststyle = 3
+let g:netrw_banner = 0
+let g:netrw_browse_split = 4
+let g:netrw_winsize = 50
+let g:netrw_altv = 1
+
+" Buffer movement
+nnoremap <leader>l :ls<cr>
+nnoremap <leader>d :b#<bar>bd#<cr>
+nnoremap <leader>f :bn<cr>
+nnoremap <leader>g :e#<cr>
+
+nnoremap <leader>b :25Lex<cr>
+
+" Clap config
+nnoremap <c-t> :Clap files<cr>
+nnoremap <c-b> :Clap filer<cr>
+
 " Airline Config
 let g:airline_theme='dark'
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#branch#empty_message = ''
+let g:airline#extensions#branch#displayed_head_limit = 30
+let g:airline#extensions#branch#sha1_len = 10
+let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#vimagit#enabled = 1
+let g:airline#extensions#tabline#formatter = 'short_path'
+let g:airline#extensions#tabline#show_buffers = 1
+let g:airline#extensions#tabline#show_tab_type = 0
+let g:airline#extensions#tabline#buffer_nr_show = 0
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+let g:airline#extensions#tabline#buffer_min_count = 0
+let g:airline#extensions#tabline#keymap_ignored_filetypes = ['netrw']
+nmap <leader>1 <Plug>AirlineSelectTab1
+nmap <leader>2 <Plug>AirlineSelectTab2
+nmap <leader>3 <Plug>AirlineSelectTab3
+nmap <leader>4 <Plug>AirlineSelectTab4
+nmap <leader>5 <Plug>AirlineSelectTab5
+nmap <leader>6 <Plug>AirlineSelectTab6
+nmap <leader>7 <Plug>AirlineSelectTab7
+nmap <leader>8 <Plug>AirlineSelectTab8
+nmap <leader>9 <Plug>AirlineSelectTab9
 
-" NERDCommenter config
-let g:NERDSpaceDelims = 1
-let g:NERDCompactSexyComs = 1
-let g:NERDDefaultAlign = 'left'
-let g:NERDCommentEmptyLines = 1
-let g:NERDTrimTrailingWhitespace = 1
-let g:NERDToggleCheckAllLines = 1
+" vim-signify
+set updatetime=100
+
+" OmniSharp
+let g:OmniSharp_server_stdio = 1
+let g:OmniSharp_selector_ui = 'clap' 
+let g:OmniSharp_selector_findusages = 'clap'
+if has('patch-8.1.1880')
+  set completeopt=longest,menuone,popuphidden
+  set completepopup=highlight:Pmenu,border:off
+else
+  set completeopt=longest,menuone,preview
+  set previewheight=5
+endif
+let g:ale_linters = { 'cs': ['OmniSharp'] }
 
 " Asyncomplete tab completion
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <c-Tab> pumvisible() ? "\<C-p>" : "\<c-Tab>"
 inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
 imap <c-space> <Plug>(asyncomplete_force_refresh)
-
 
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
@@ -114,3 +149,4 @@ if has('python3')
         \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
         \ }))
 endif
+
