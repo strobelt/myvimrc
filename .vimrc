@@ -17,6 +17,7 @@ Plug 'chrisbra/csv.vim'
 Plug 'OmniSharp/omnisharp-vim'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'dense-analysis/ale'
+Plug 'andreypopp/asyncomplete-ale.vim'
 
 if has('python3')
     Plug 'SirVer/ultisnips'
@@ -35,6 +36,10 @@ Plug 'chrisbra/csv.vim'
 
 " vim-signify
 Plug 'mhinz/vim-signify'
+
+" vim-typescript
+Plug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
 
 call plug#end()
 
@@ -123,7 +128,7 @@ set updatetime=100
 
 " OmniSharp
 let g:OmniSharp_server_stdio = 1
-let g:OmniSharp_selector_ui = 'clap' 
+let g:OmniSharp_selector_ui = 'clap'
 let g:OmniSharp_selector_findusages = 'clap'
 if has('patch-8.1.1880')
   set completeopt=longest,menuone,popuphidden
@@ -132,7 +137,25 @@ else
   set completeopt=longest,menuone,preview
   set previewheight=5
 endif
-let g:ale_linters = { 'cs': ['OmniSharp'] }
+
+" ALE Config
+let g:ale_linters = {
+\    'cs': [ 'OmniSharp' ],
+\    'javascript': [ 'eslint' ],
+\    'typescript': [ 'tslint' ]
+\ }
+let g:ale_fixers = {
+\   '*': [ 'remove_trailing_lines', 'trim_whitespace' ],
+\   'javascript': [ 'eslint', 'prettier' ],
+\   'typescript': [ 'tslint', 'prettier' ]
+\ }
+let g:ale_javascript_prettier_use_local_config = 1
+let g:ale_linters_explicit = 1
+let g:ale_fix_on_save = 1
+let g:ale_sign_column_always = 1
+let g:ale_completion_autoimport = 1
+set omnifunc=ale#completion#OmniFunc
+let g:airline#extensions#ale#enabled = 1
 
 " Google Search
 function! GoogleText(type, ...)
@@ -157,7 +180,7 @@ function! GoogleText(type, ...)
   let @@ = reg_save
 endfunction
 
-" CSV.vim config 
+" CSV.vim config
 nmap <silent> gs :set opfunc=GoogleText<CR>g@
 vmap <silent> gs :<C-u>call GoogleText(visualmode(), 1)<Cr>
 
@@ -167,16 +190,16 @@ inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
 inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
 imap <c-space> <Plug>(asyncomplete_force_refresh)
 
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
-if has('python3')
-    let g:UltiSnipsJumpForwardTrigger="<C-n>"
-    let g:UltiSnipsJumpBackwardTrigger="<C-b>"
-    let g:UltiSnipsExpandTrigger="<S-Tab>"
-    call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
-        \ 'name': 'ultisnips',
-        \ 'whitelist': ['*'],
-        \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
-        \ }))
-endif
-
+"" If you want :UltiSnipsEdit to split your window.
+"let g:UltiSnipsEditSplit="vertical"
+"if has('python3')
+    "let g:UltiSnipsJumpForwardTrigger="<C-n>"
+    "let g:UltiSnipsJumpBackwardTrigger="<C-b>"
+    "let g:UltiSnipsExpandTrigger="<S-Tab>"
+    "call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
+        "\ 'name': 'ultisnips',
+        "\ 'whitelist': ['*'],
+        "\ 'completor': function('asyncomplete#sources#ultisnips#completor'),
+        "\ }))
+"endif
+"
