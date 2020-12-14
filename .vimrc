@@ -10,6 +10,9 @@ Plug 'vim-airline/vim-airline-themes'
 " vimicons
 Plug 'ryanoasis/vim-devicons'
 
+" CSV.vim
+Plug 'chrisbra/csv.vim'
+
 " OmniSharp
 Plug 'OmniSharp/omnisharp-vim'
 Plug 'prabirshrestha/asyncomplete.vim'
@@ -59,7 +62,7 @@ if has("gui_running")
     set guioptions-=r  "remove right-hand scroll bar
     set guioptions-=L  "remove left-hand scroll bar
 
-    let &guifont="EllographCF_NF_Regular:h11:cANSI,FuraMono_Nerd_Font_Mono:h11:cANSI"
+    let &guifont="FuraMono_Nerd_Font_Mono:h11:cANSI,EllographCF_NF_Regular:h11:cANSI"
     set encoding=utf8
     if has("win32") || has("win64") || has("win16")
         set renderoptions=type:directx
@@ -131,17 +134,44 @@ else
 endif
 let g:ale_linters = { 'cs': ['OmniSharp'] }
 
+" Google Search
+function! GoogleText(type, ...)
+  let sel_save = &selection
+  let &selection = "inclusive"
+  let reg_save = @@
+
+  if a:0  " Invoked from Visual mode, use '< and '> marks.
+    silent exe "normal! `<" . a:type . "`>y"
+  elseif a:type == 'line'
+    silent exe "normal! '[V']y"
+  elseif a:type == 'block'
+    silent exe "normal! `[\<C-V>`]y"
+  else
+    silent exe "normal! `[v`]y"
+  endif
+
+  let search = substitute(trim(@@), ' \+', '+', 'g')
+  silent exe "!start https://google.com/search?q=" . search
+
+  let &selection = sel_save
+  let @@ = reg_save
+endfunction
+
+" CSV.vim config 
+nmap <silent> gs :set opfunc=GoogleText<CR>g@
+vmap <silent> gs :<C-u>call GoogleText(visualmode(), 1)<Cr>
+
 " Asyncomplete tab completion
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <c-Tab> pumvisible() ? "\<C-p>" : "\<c-Tab>"
+inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
 inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
 imap <c-space> <Plug>(asyncomplete_force_refresh)
 
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 if has('python3')
-    let g:UltiSnipsJumpForwardTrigger="<c-b>"
-    let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+    let g:UltiSnipsJumpForwardTrigger="<C-n>"
+    let g:UltiSnipsJumpBackwardTrigger="<C-b>"
     let g:UltiSnipsExpandTrigger="<S-Tab>"
     call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
         \ 'name': 'ultisnips',
