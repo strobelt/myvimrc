@@ -47,6 +47,7 @@ call plug#end()
 filetype plugin indent on
 let mapleader=";"
 set clipboard=unnamed
+set splitbelow
 set nu rnu
 syntax on
 set renderoptions=type:directx
