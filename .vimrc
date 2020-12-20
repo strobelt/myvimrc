@@ -41,6 +41,7 @@ Plug 'mhinz/vim-signify'
 " vim-typescript
 Plug 'pangloss/vim-javascript'
 Plug 'leafgarland/typescript-vim'
+Plug 'tpope/vim-projectionist'
 
 call plug#end()
 
@@ -128,7 +129,7 @@ nmap <leader>9 <Plug>AirlineSelectTab9
 " vim-signify
 set updatetime=100
 
-" OmniSharp
+" C# configs w/ OmniSharp and Asyncomplete
 let g:OmniSharp_server_stdio = 1
 let g:OmniSharp_selector_ui = 'clap'
 let g:OmniSharp_selector_findusages = 'clap'
@@ -144,6 +145,38 @@ autocmd FileType cs nmap <silent> <buffer> <A-F> :OmniSharpCodeFormat<cr>
 autocmd FileType cs nmap <silent> <buffer> <A-t> :OmniSharpRunTest<cr>
 autocmd FileType cs nmap <silent> <buffer> <A-T> :OmniSharpRunTestsInFile<cr>
 autocmd FileType cs nmap <silent> <buffer> <C-S-b> <Plug>(omnisharp_global_code_check)
+" Asyncomplete tab completion
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
+inoremap <expr> <cr>  pumvisible() ? "\<C-y>" : "\<cr>"
+imap <c-space> <Plug>(asyncomplete_force_refresh)
+
+" Typescript configs
+let g:projectionist_heuristics = {
+            \  "src/app|angular.json": {
+            \    "src/*.component.ts": {
+            \      "alternate": "src/{}.component.html",
+            \      "type": "source"
+            \    },
+            \    "src/*.component.spec.ts": {
+            \      "alternate": "src/{}.component.ts",
+            \      "type": "spec"
+            \    },
+            \    "src/*.component.scss": {
+            \      "alternate": "src/{}.component.ts",
+            \      "type": "style"
+            \    },
+            \    "src/*.component.html": {
+            \      "alternate": "src/{}.component.ts",
+            \      "type": "html"
+            \    }
+            \  }
+            \}
+
+nmap <A-u> :Esource<cr>
+nmap <A-i> :Estyle<cr>
+nmap <A-o> :Ehtml<cr>
+nmap <A-p> :Espec<cr>
 
 " ALE Config
 let g:ale_linters = {
@@ -190,12 +223,6 @@ endfunction
 " CSV.vim config
 nmap <silent> gs :set opfunc=GoogleText<CR>g@
 vmap <silent> gs :<C-u>call GoogleText(visualmode(), 1)<Cr>
-
-" Asyncomplete tab completion
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
-inoremap <expr> <cr>  pumvisible() ? "\<C-y>" : "\<cr>"
-imap <c-space> <Plug>(asyncomplete_force_refresh)
 
 "" If you want :UltiSnipsEdit to split your window.
 "let g:UltiSnipsEditSplit="vertical"
