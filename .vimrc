@@ -1,7 +1,8 @@
 call plug#begin('~/.vim/plugged')
 
-" Dracula Theme
+" Themes
 Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'rakr/vim-one'
 
 " Airline
 Plug 'vim-airline/vim-airline'
@@ -75,8 +76,8 @@ if has("gui_running")
     endif
 endif
 
-" Dracula Theme
-color dracula
+colorscheme one
+set background=dark
 
 " netrw Config
 let g:netrw_liststyle = 3
@@ -138,6 +139,11 @@ else
   set completeopt=longest,menuone,preview
   set previewheight=5
 endif
+autocmd FileType cs nmap <silent> <buffer> <F12> :OmniSharpGotoDefinition<cr>
+autocmd FileType cs nmap <silent> <buffer> <A-F> :OmniSharpCodeFormat<cr>
+autocmd FileType cs nmap <silent> <buffer> <A-t> :OmniSharpRunTest<cr>
+autocmd FileType cs nmap <silent> <buffer> <A-T> :OmniSharpRunTestsInFile<cr>
+autocmd FileType cs nmap <silent> <buffer> <C-S-b> <Plug>(omnisharp_global_code_check)
 
 " ALE Config
 let g:ale_linters = {
@@ -186,9 +192,9 @@ nmap <silent> gs :set opfunc=GoogleText<CR>g@
 vmap <silent> gs :<C-u>call GoogleText(visualmode(), 1)<Cr>
 
 " Asyncomplete tab completion
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
-inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
+inoremap <expr> <cr>  pumvisible() ? "\<C-y>" : "\<cr>"
 imap <c-space> <Plug>(asyncomplete_force_refresh)
 
 "" If you want :UltiSnipsEdit to split your window.
