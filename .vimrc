@@ -1,7 +1,9 @@
 call plug#begin('~/.vim/plugged')
 
-" Dracula Theme
+" Themes
 Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'rakr/vim-one'
+Plug 'pineapplegiant/spaceduck', { 'branch': 'main' }
 
 " Airline
 Plug 'vim-airline/vim-airline'
@@ -17,6 +19,7 @@ Plug 'chrisbra/csv.vim'
 Plug 'OmniSharp/omnisharp-vim'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'dense-analysis/ale'
+Plug 'andreypopp/asyncomplete-ale.vim'
 
 if has('python3')
     Plug 'SirVer/ultisnips'
@@ -36,12 +39,18 @@ Plug 'chrisbra/csv.vim'
 " vim-signify
 Plug 'mhinz/vim-signify'
 
+" vim-typescript
+Plug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
+Plug 'tpope/vim-projectionist'
+
 call plug#end()
 
 " General Config
 filetype plugin indent on
 let mapleader=";"
 set clipboard=unnamed
+set splitbelow
 set nu rnu
 syntax on
 set renderoptions=type:directx
@@ -69,8 +78,14 @@ if has("gui_running")
     endif
 endif
 
-" Dracula Theme
-color dracula
+set background=dark
+" colorscheme one
+if exists('+termguicolors')
+   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+   set termguicolors
+endif
+colorscheme spaceduck
 
 " netrw Config
 let g:netrw_liststyle = 3
@@ -92,7 +107,8 @@ nnoremap <c-t> :Clap files<cr>
 nnoremap <c-b> :Clap filer<cr>
 
 " Airline Config
-let g:airline_theme='dark'
+" let g:airline_theme='dark'
+let g:airline_theme = 'spaceduck'
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#branch#empty_message = ''
 let g:airline#extensions#branch#displayed_head_limit = 30
@@ -121,9 +137,9 @@ nmap <leader>9 <Plug>AirlineSelectTab9
 " vim-signify
 set updatetime=100
 
-" OmniSharp
+" C# configs w/ OmniSharp and Asyncomplete
 let g:OmniSharp_server_stdio = 1
-let g:OmniSharp_selector_ui = 'clap' 
+let g:OmniSharp_selector_ui = 'clap'
 let g:OmniSharp_selector_findusages = 'clap'
 if has('patch-8.1.1880')
   set completeopt=longest,menuone,popuphidden
@@ -132,7 +148,62 @@ else
   set completeopt=longest,menuone,preview
   set previewheight=5
 endif
-let g:ale_linters = { 'cs': ['OmniSharp'] }
+autocmd FileType cs nmap <silent> <buffer> <F12> :OmniSharpGotoDefinition<cr>
+autocmd FileType cs nmap <silent> <buffer> <A-F> :OmniSharpCodeFormat<cr>
+autocmd FileType cs nmap <silent> <buffer> <A-t> :OmniSharpRunTest<cr>
+autocmd FileType cs nmap <silent> <buffer> <A-T> :OmniSharpRunTestsInFile<cr>
+autocmd FileType cs nmap <silent> <buffer> <C-S-b> <Plug>(omnisharp_global_code_check)
+" Asyncomplete tab completion
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
+inoremap <expr> <cr>  pumvisible() ? "\<C-y>" : "\<cr>"
+imap <c-space> <Plug>(asyncomplete_force_refresh)
+
+" Typescript configs
+let g:projectionist_heuristics = {
+            \  "src/app|angular.json": {
+            \    "src/*.component.ts": {
+            \      "alternate": "src/{}.component.html",
+            \      "type": "source"
+            \    },
+            \    "src/*.component.spec.ts": {
+            \      "alternate": "src/{}.component.ts",
+            \      "type": "spec"
+            \    },
+            \    "src/*.component.scss": {
+            \      "alternate": "src/{}.component.ts",
+            \      "type": "style"
+            \    },
+            \    "src/*.component.html": {
+            \      "alternate": "src/{}.component.ts",
+            \      "type": "html"
+            \    }
+            \  }
+            \}
+
+nmap <A-u> :Esource<cr>
+nmap <A-i> :Estyle<cr>
+nmap <A-o> :Ehtml<cr>
+nmap <A-p> :Espec<cr>
+
+" ALE Config
+let g:ale_linters = {
+\    'cs': [ 'OmniSharp' ],
+\    'javascript': [ 'eslint' ],
+\    'typescript': [ 'tslint' ]
+\ }
+let g:ale_fixers = {
+\   '*': [ 'remove_trailing_lines', 'trim_whitespace' ],
+\   'javascript': [ 'eslint', 'prettier' ],
+\   'typescript': [ 'tslint', 'prettier' ]
+\ }
+let g:ale_javascript_prettier_use_local_config = 1
+let g:ale_linters_explicit = 1
+let g:ale_fix_on_save = 1
+let g:ale_sign_column_always = 1
+let g:ale_completion_autoimport = 1
+set omnifunc=ale#completion#OmniFunc
+let g:airline#extensions#ale#enabled = 1
 
 " Google Search
 function! GoogleText(type, ...)
@@ -157,26 +228,20 @@ function! GoogleText(type, ...)
   let @@ = reg_save
 endfunction
 
-" CSV.vim config 
+" CSV.vim config
 nmap <silent> gs :set opfunc=GoogleText<CR>g@
 vmap <silent> gs :<C-u>call GoogleText(visualmode(), 1)<Cr>
 
-" Asyncomplete tab completion
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
-inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
-imap <c-space> <Plug>(asyncomplete_force_refresh)
-
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
-if has('python3')
-    let g:UltiSnipsJumpForwardTrigger="<C-n>"
-    let g:UltiSnipsJumpBackwardTrigger="<C-b>"
-    let g:UltiSnipsExpandTrigger="<S-Tab>"
-    call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
-        \ 'name': 'ultisnips',
-        \ 'whitelist': ['*'],
-        \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
-        \ }))
-endif
-
+"" If you want :UltiSnipsEdit to split your window.
+"let g:UltiSnipsEditSplit="vertical"
+"if has('python3')
+    "let g:UltiSnipsJumpForwardTrigger="<C-n>"
+    "let g:UltiSnipsJumpBackwardTrigger="<C-b>"
+    "let g:UltiSnipsExpandTrigger="<S-Tab>"
+    "call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
+        "\ 'name': 'ultisnips',
+        "\ 'whitelist': ['*'],
+        "\ 'completor': function('asyncomplete#sources#ultisnips#completor'),
+        "\ }))
+"endif
+"
