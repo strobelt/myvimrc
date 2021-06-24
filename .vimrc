@@ -3,6 +3,7 @@ call plug#begin('~/.vim/plugged')
 " Themes
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'rakr/vim-one'
+Plug 'pineapplegiant/spaceduck', { 'branch': 'main' }
 
 " Airline
 Plug 'vim-airline/vim-airline'
@@ -77,8 +78,14 @@ if has("gui_running")
     endif
 endif
 
-colorscheme one
 set background=dark
+" colorscheme one
+if exists('+termguicolors')
+   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+   set termguicolors
+endif
+colorscheme spaceduck
 
 " netrw Config
 let g:netrw_liststyle = 3
@@ -100,7 +107,8 @@ nnoremap <c-t> :Clap files<cr>
 nnoremap <c-b> :Clap filer<cr>
 
 " Airline Config
-let g:airline_theme='dark'
+" let g:airline_theme='dark'
+let g:airline_theme = 'spaceduck'
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#branch#empty_message = ''
 let g:airline#extensions#branch#displayed_head_limit = 30
